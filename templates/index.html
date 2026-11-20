@@ -1,0 +1,394 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Password Strength Checker</title>
+
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: Arial, sans-serif;
+        }
+
+        body {
+            min-height: 100vh;
+            background: linear-gradient(135deg, #17152e, #30205b, #123c50);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 30px 20px 160px;
+            color: white;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 470px;
+            background: #ffffff;
+            color: #25213a;
+            padding: 35px;
+            border-radius: 18px;
+            box-shadow: 0 12px 35px rgba(0, 0, 0, 0.35);
+        }
+
+        h1 {
+            text-align: center;
+            color: #30205b;
+            font-size: 27px;
+            margin-bottom: 10px;
+        }
+
+        .subtitle {
+            text-align: center;
+            color: #77718b;
+            font-size: 14px;
+            margin-bottom: 28px;
+        }
+
+        .input-label {
+            display: block;
+            font-weight: bold;
+            margin-bottom: 9px;
+            font-size: 14px;
+        }
+
+        input {
+            width: 100%;
+            padding: 14px;
+            border: 2px solid #d9d4e8;
+            border-radius: 9px;
+            font-size: 15px;
+            outline: none;
+        }
+
+        input:focus {
+            border-color: #12a6b5;
+        }
+
+        .show-btn {
+            display: inline-block;
+            margin-top: 10px;
+            color: #087f91;
+            font-size: 13px;
+            cursor: pointer;
+        }
+
+        .check-btn {
+            width: 100%;
+            padding: 14px;
+            margin-top: 22px;
+            background: #30205b;
+            color: white;
+            border: none;
+            border-radius: 9px;
+            font-size: 16px;
+            cursor: pointer;
+            transition: 0.2s;
+        }
+
+        .check-btn:hover {
+            background: #493582;
+        }
+
+        .result {
+            display: none;
+            margin-top: 25px;
+        }
+
+        .strength {
+            text-align: center;
+            font-size: 21px;
+            font-weight: bold;
+            margin-bottom: 15px;
+        }
+
+        .progress-bg {
+            height: 11px;
+            width: 100%;
+            background: #e8e5ef;
+            border-radius: 20px;
+            overflow: hidden;
+        }
+
+        .progress {
+            height: 100%;
+            width: 0%;
+            border-radius: 20px;
+            transition: width 0.3s;
+        }
+
+        .checks {
+            list-style: none;
+            margin-top: 20px;
+        }
+
+        .checks li {
+            padding: 8px 0;
+            font-size: 14px;
+        }
+
+        .pass {
+            color: #15965b;
+        }
+
+        .fail {
+            color: #d64545;
+        }
+
+        .suggestions {
+            background: #eef9fa;
+            border-left: 4px solid #12a6b5;
+            padding: 14px;
+            border-radius: 7px;
+            margin-top: 20px;
+            font-size: 13px;
+            line-height: 1.8;
+            color: #344054;
+        }
+
+        .student-info {
+            position: fixed;
+            right: 18px;
+            bottom: 18px;
+            background: #211a40;
+            color: #ffffff;
+            padding: 15px 19px;
+            border: 1px solid #62528c;
+            border-radius: 12px;
+            font-size: 12px;
+            line-height: 1.8;
+            box-shadow: 0 5px 18px rgba(0,0,0,0.3);
+        }
+
+        .student-info strong {
+            color: #43d5df;
+            font-size: 14px;
+        }
+
+        @media (max-width: 500px) {
+            .container {
+                padding: 25px 20px;
+            }
+
+            h1 {
+                font-size: 23px;
+            }
+
+            .student-info {
+                right: 10px;
+                bottom: 10px;
+                font-size: 11px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="container">
+
+        <h1>Password Strength Checker</h1>
+
+        <p class="subtitle">
+            Test your password and improve its security
+        </p>
+
+        <label class="input-label" for="password">
+            Enter Your Password
+        </label>
+
+        <input
+            type="password"
+            id="password"
+            placeholder="Type a sample password"
+            autocomplete="off"
+        >
+
+        <span class="show-btn" onclick="togglePassword()">
+            Show Password
+        </span>
+
+        <button class="check-btn" onclick="checkPassword()">
+            Check Strength
+        </button>
+
+        <div class="result" id="result">
+
+            <div class="strength" id="strength"></div>
+
+            <div class="progress-bg">
+                <div class="progress" id="progress"></div>
+            </div>
+
+            <ul class="checks" id="checks"></ul>
+
+            <div class="suggestions" id="suggestions"></div>
+
+        </div>
+
+    </div>
+
+    <!-- Student Information -->
+
+    <div class="student-info">
+        <strong>Naitik Tiwari</strong><br>
+        Branch: ELCE 2<br>
+        Roll No: 2026B02310076<br>
+        Course: Cyber Analyst
+    </div>
+
+    <script>
+
+        function togglePassword() {
+            const password = document.getElementById("password");
+            const button = document.querySelector(".show-btn");
+
+            if (password.type === "password") {
+                password.type = "text";
+                button.textContent = "Hide Password";
+            } else {
+                password.type = "password";
+                button.textContent = "Show Password";
+            }
+        }
+
+        async function checkPassword() {
+
+            const password = document.getElementById("password").value;
+
+            if (password.length === 0) {
+                alert("Please enter a password first.");
+                return;
+            }
+
+            try {
+
+                const response = await fetch("/check", {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json"
+                    },
+                    body: JSON.stringify({
+                        password: password
+                    })
+                });
+
+                if (!response.ok) {
+                    throw new Error("Server error");
+                }
+
+                const data = await response.json();
+
+                document.getElementById("result").style.display = "block";
+
+                const strength = document.getElementById("strength");
+                strength.textContent =
+                    "Password Strength: " + data.strength;
+
+                const progress = document.getElementById("progress");
+                progress.style.width =
+                    (data.score / 6 * 100) + "%";
+
+                if (data.strength === "Weak") {
+                    progress.style.background = "#e05252";
+                    strength.style.color = "#d64545";
+                } 
+                else if (data.strength === "Medium") {
+                    progress.style.background = "#e5a12b";
+                    strength.style.color = "#c48718";
+                } 
+                else {
+                    progress.style.background = "#15965b";
+                    strength.style.color = "#15965b";
+                }
+
+                const labels = {
+                    length: "At least 8 characters",
+                    long: "At least 12 characters",
+                    upper: "Contains an uppercase letter",
+                    lower: "Contains a lowercase letter",
+                    number: "Contains a number",
+                    special: "Contains a special character"
+                };
+
+                const checksList = document.getElementById("checks");
+                checksList.replaceChildren();
+
+                for (const key in data.checks) {
+
+                    const item = document.createElement("li");
+
+                    if (data.checks[key]) {
+                        item.textContent = "✔ " + labels[key];
+                        item.className = "pass";
+                    } else {
+                        item.textContent = "✘ " + labels[key];
+                        item.className = "fail";
+                    }
+
+                    checksList.appendChild(item);
+                }
+
+                const suggestions = [];
+
+                if (!data.checks.length) {
+                    suggestions.push("Use at least 8 characters.");
+                }
+
+                if (!data.checks.long) {
+                    suggestions.push("Try using 12 or more characters.");
+                }
+
+                if (!data.checks.upper) {
+                    suggestions.push("Add an uppercase letter.");
+                }
+
+                if (!data.checks.lower) {
+                    suggestions.push("Add a lowercase letter.");
+                }
+
+                if (!data.checks.number) {
+                    suggestions.push("Add a number.");
+                }
+
+                if (!data.checks.special) {
+                    suggestions.push("Add a special character.");
+                }
+
+                const suggestionBox =
+                    document.getElementById("suggestions");
+
+                suggestionBox.replaceChildren();
+
+                const heading = document.createElement("strong");
+                heading.textContent = "Suggestions:";
+                suggestionBox.appendChild(heading);
+
+                suggestions.forEach(function (suggestion) {
+                    const line = document.createElement("div");
+                    line.textContent = suggestion;
+                    suggestionBox.appendChild(line);
+                });
+
+                if (suggestions.length === 0) {
+                    const message = document.createElement("div");
+                    message.textContent =
+                        "Great! Your password meets all the basic checks.";
+                    suggestionBox.appendChild(message);
+                }
+
+            } catch (error) {
+                alert(
+                    "Unable to connect to the server. " +
+                    "Please make sure app.py is running."
+                );
+            }
+        }
+
+    </script>
+
+</body>
+</html>
